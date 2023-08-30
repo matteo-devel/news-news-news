@@ -1,5 +1,5 @@
 #! /usr/bin/python3
-import pygooglenews, goose3, requests, re, curses, html
+import pygooglenews, goose3, requests, re, curses, html, fake_useragent
 
 NEWSPAPERS = [
         "https://www.corriere.it",
@@ -11,8 +11,17 @@ NEWSPAPERS = [
         "https://www.rainews.it"
         ]
 
+def _get_JSESSIONID_value(url, headers) -> str:
+    s = requests.Session()
+    s.get(url=url, headers=headers)
+    cookies = s.cookies.get_dict()
+    s.close()
+    print(cookies)
+    print(cookies["JSESSIONID"])
+    return  cookies["JSESSIONID"]
+
 # return the link to download the last sign-language video news
-def get_tg1_opening_download_url():
+def get_tg1_download_url():
 
     r = requests.get("https://www.rainews.it/notiziari/tg1")
 
@@ -35,10 +44,14 @@ def get_tg1_opening_download_url():
     url = html.unescape(match.group(0))[:-1] + "&output=61"
     print(url)
 
-    cookies = {'JSESSIONID' : 'ZjUur+3RP8e7N3SDEVFDbkLu',}
-    r = requests.get(url, cookies=cookies)
+    # https://stackoverflow.com/questions/27652543/how-to-use-python-requests-to-fake-a-browser-visit-a-k-a-and-generate-user-agent
+    headers = {'User-Agent' : str(fake_useragent.UserAgent().chrome)}
+    # cookies = {'JSESSIONID' : 'ZjUur+3RP8e7N3SDEVFDbkLu'}
+    cookies = {'JSESSIONID' : _get_JSESSIONID_value(url, headers)}
+
+    r = requests.get(url, cookies=cookies, headers=headers)
     print(r.text)
-def get_tg1_opening():
+def get_tg1():
     pass
 
 def get_news(newspapers = NEWSPAPERS):
@@ -62,5 +75,5 @@ def get_news(newspapers = NEWSPAPERS):
             })
         input()
 
-get_tg1_opening_download_url()
+get_tg1_download_url()
 #get_news()
