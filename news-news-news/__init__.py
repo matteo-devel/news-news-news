@@ -57,6 +57,7 @@ def get_tg1_m3u8_url(url: str):
     # remove trailing quote and add parameter
     url = match.group(0)[:-1] + "&output=61"
 
+    # https://stackoverflow.com/questions/27652543/how-to-use-python-requests-to-fake-a-browser-visit-a-k-a-and-generate-user-agent
     headers = {"User-Agent": str(fake_useragent.UserAgent().chrome)}
     cookies = {"JSESSIONID": _get_JSESSIONID_value(url, headers)}
 
